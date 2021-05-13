@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NullableReferenceTypePOC
 {
@@ -6,31 +8,40 @@ namespace NullableReferenceTypePOC
     {
         public static void Main(string[] args)
         {
-            var pessoa1 = new Pessoa { Id = null, Nome = "Guilherme", Idade = 19 };
-            var alimentos = new List<Alimento> { new Alimento { Nome = "Minhoca", ValorEnergtico = 65 } };
-            var passaro = new Passaro { Apelido = "Joja", Alimentos = alimentos };
+            var passaro = new Passaro { Nome = "Joja" };
+
+            // Sem riscos, mesmo com a lista vazia.
+            foreach (var item in passaro.AlimentosNonNullable)
+            {
+                Console.WriteLine(item.Nome);
+            }
+
+            // Throw NullReferenceException.
+            foreach (var item in passaro.AlimentosNullable)
+            {
+                Console.WriteLine(item.Nome);
+            }
         }
     }
 
-
-#nullable disable
     public class Passaro
     {
-        public string Apelido { get; set; }
-        public string Nicho { get; set; }
-        public List<Alimento> Alimentos { get; set; }
+        public string Nome { get; set; } = string.Empty;
+
+        // O compilador obriga o set da lista...
+        public IEnumerable<Alimento> AlimentosNonNullable { get; set; } = Enumerable.Empty<Alimento>();
+
+#nullable disable
+
+        // Aqui, permitimos que a propriedade seja iniciada sem valor (null).
+        public IEnumerable<Alimento> AlimentosNullable { get; set; }
+
+#nullable restore
     }
+
     public class Alimento
     {
-        public string Nome { get; set; }
-        public int ValorEnergtico { get; set; }
-    }
-#nullable restore
-
-    public class Pessoa
-    {
-        public string? Id { get; set; }
         public string? Nome { get; set; }
-        public int Idade { get; set; }
+        public int ValorEnergtico { get; set; }
     }
 }
